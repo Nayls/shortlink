@@ -1,3 +1,37 @@
+.PHONY: help
+help:
+	@echo "Make help starting."
+	@echo "  generate"
+	@echo "  build"
+	@echo "  run"
+	@echo "  run-it"
+	@echo "  run-detach"
+	@echo "  exec"
+
+SHELL := /bin/bash
+VERSION := 1.0.0
+
+DOCKER_BUILDKIT?=0
+CI_REGISTRY_IMAGE?=batazor/shortlink
+CI_COMMIT_SHORT_SHA?=$(shell git rev-parse --short=8 -q HEAD)
+
+IMAGE?=alpine
+COMMAND?=/bin/ash
+ifeq ($(IMAGE),alpine)
+	IMAGE_TAG?=alpine
+	COMMAND?=/bin/ash
+else ifeq ($(IMAGE),buster)
+	IMAGE_TAG?=buster
+	COMMAND?=/bin/bash
+endif
+
+DOCKERFILE?=${PWD}/docker/${IMAGE}.Dockerfile
+DOCKER_CONTEXT?=${PWD}
+
+
+test:
+	echo $$TARGET
+
 .: generate
 
 generate:
@@ -26,10 +60,10 @@ golint:
 
 run:
 	@docker-compose \
-         -f docker-compose.yaml \
-         -f ops/docker-compose/database/redis.yaml \
-         -f ops/docker-compose/gataway/traefik.yaml \
-         up -d
+		-f docker-compose.yaml \
+		-f ops/docker-compose/database/redis.yaml \
+		-f ops/docker-compose/gataway/traefik.yaml \
+		up -d
 
 down:
 	@docker-compose down --remove-orphans
